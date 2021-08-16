@@ -349,7 +349,8 @@ class _LoginPageState extends State<LoginPage> {
       print(e.toString());
       final snackBar = SnackBar(
             content: Text(
-                'login failed, try checking your internet connection'),
+                'login failed, try checking your internet connection'
+                ),
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }

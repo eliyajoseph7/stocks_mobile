@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AllWarehouse {
   int id;
@@ -17,10 +18,12 @@ class AllWarehouse {
 
 class AllWarehouseProvider with ChangeNotifier {
   List<AllWarehouse> _warehouses = [];
+  List<AllWarehouse> _sourceWarehouses = [];
 
   bool loading = false;
 
   List<AllWarehouse> get warehouses => [..._warehouses];
+  List<AllWarehouse> get sourceWarehouses => [..._sourceWarehouses];
   bool get isLoading => loading;
 
   
@@ -32,20 +35,54 @@ class AllWarehouseProvider with ChangeNotifier {
         ));
     notifyListeners();
   }  
+  
+  void setSourceWarehouses(
+      int id, String name) {
+    this._sourceWarehouses.add(AllWarehouse(
+          id: id,
+          name: name,
+        ));
+    notifyListeners();
+  }  
 
   void setLoading() {
     this.loading = !this.loading;
   }
   
   Future<void> fetchWarehouses() async {
+    SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
     this._warehouses = [];
+    var token = sharedPreferences.getString('token');
     http.Response response =
-        await http.get(Uri.parse("http://stocks.multics.co.tz/public/api/warehouse"));
+        await http.get(Uri.parse("http://stocks.multics.co.tz/public/api/app/warehouses/" + token.toString()));
 
     try {
       if (response.statusCode == 200) {
         for (var map in jsonDecode(response.body)) {
           setWarehouses(
+            map['id'],
+            map['name']
+          );
+
+        }
+        // print(response.body);
+      }
+    } catch (e, _) {
+      print(e.toString());
+    }
+    // print(warehouses);
+  } 
+
+  Future<void> fetchSourceWarehouses(String district) async {
+    this._sourceWarehouses = [];
+    http.Response response =
+        await http.get(Uri.parse("http://stocks.multics.co.tz/public/api/area-warehouses/" + district));
+
+    try {
+      if (response.statusCode == 200) {
+        for (var map in jsonDecode(response.body)) {
+          setSourceWarehouses(
             map['id'],
             map['name']
           );
@@ -73,20 +110,21 @@ class AllWarehouseProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         setLoading();
         Navigator.pop(context);
-        final snackBar = SnackBar(
-            content: Text(
-                'Commodity received successfully'),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      } else if (response.statusCode == 401) {
-        setLoading();
-        Navigator.pop(context);
-        final snackBar = SnackBar(
-            content: Text(
-                'Quantity exceeded the warehouse capacity'),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
+        if (jsonDecode(response.body)['resp'] != 'failed') {
+          final snackBar = SnackBar(
+              content: Text(
+                  'Commodity received successfully'),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }else {
+          setLoading();
+          final snackBar = SnackBar(
+              content: Text(
+                  'Quantity exceeded the warehouse capacity'),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      } 
     }
     catch(e) {
       print(e.toString());

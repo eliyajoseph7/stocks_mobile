@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
       var buyer = Provider.of<BuyerProvider>(context, listen: false);
 
       seller.fetchSellers();
-      crop.fetchCrops();
+      // crop.fetchCrops();
       location.fetchRegions();
       markets.fetchMarkets();
       warehouses.fetchWarehouses();

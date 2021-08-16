@@ -7,11 +7,10 @@ class Market extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(
-            child: GestureDetector(
+          GestureDetector(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                         builder: (BuildContext context) =>
@@ -57,9 +56,7 @@ class Market extends StatelessWidget {
               ),
               ),
             ),
-          ),
-          Flexible(
-          child: GestureDetector(
+          GestureDetector(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                         builder: (BuildContext context) =>
@@ -86,7 +83,7 @@ class Market extends StatelessWidget {
                         child: Text(
                           "Release from market",
                           style: TextStyle(
-                            fontSize: 13.0,
+                            fontSize: 15.0,
                             fontWeight: FontWeight.bold
                           ),
                         ),
@@ -104,7 +101,6 @@ class Market extends StatelessWidget {
               ),
               ),
           ),
-          )
       ],
     );
 

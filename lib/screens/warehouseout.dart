@@ -27,18 +27,6 @@ class _OutWarehouseState extends State<OutWarehouse> {
   TextEditingController date = new TextEditingController();
   var _formState = GlobalKey<FormState>();
 
-  var destwarehouses = [
-    "Utegi",
-    "Ngara",
-    "Mazimbu",
-    "Kyela",
-  ];
-  
-  var destmarkets = [
-    "Kitenga",
-    "Randa",
-    "Nyamaguku",
-  ];
   var processed = [
     "Yes",
     "No",
@@ -59,22 +47,21 @@ class _OutWarehouseState extends State<OutWarehouse> {
     "Mwanza",
   ];
 
+var qualities = [
+    "High",
+    "Moderate",
+    "Low",
+    "Unknown",
+  ];
 
-  var seller;
-  var buyer;
-  var crop;
-  var warehouse;
+  var warehouseId;
   var destination;
-  var destwarehouse;
-  var destmarket;
   var process;
-  var region;
-  var district;
-  var ward;
-  var village;
+  var quality;
   var isProcessed = false;
   var towarehouse = false;
   var tomarket = false;
+  var obj;
 
     
   var sellerId;
@@ -84,8 +71,8 @@ class _OutWarehouseState extends State<OutWarehouse> {
   var districtId;
   var wardId;
   var villageId;
-  var to_warehouse;
-  var to_market;
+  var destWarehouse;
+  var destMarket;
   @override
   Widget build(BuildContext context) {
     var sellers = Provider.of<SellerProvider>(context);
@@ -134,6 +121,7 @@ class _OutWarehouseState extends State<OutWarehouse> {
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: sellers.sellers.map((var seller) {
                           return new DropdownMenuItem(
                             value: seller.id,
@@ -147,9 +135,13 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with seller
-                          setState(() => seller = newValue);
+                          setState(() {
+                            sellerId = newValue;
+                            cropId = obj;
+                          });
+                          crops.fetchCrops(sellerId.toString());
                         },
-                        value: seller,
+                        value: sellerId,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                             filled: true,
@@ -166,6 +158,7 @@ class _OutWarehouseState extends State<OutWarehouse> {
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: warehouses.warehouses.map((var warehouse) {
                           return new DropdownMenuItem(
                             value: warehouse.id,
@@ -179,9 +172,9 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with warehouse
-                          setState(() => warehouse = newValue);
+                          setState(() => warehouseId = newValue);
                         },
-                        value: warehouse,
+                        value: warehouseId,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                             filled: true,
@@ -197,6 +190,7 @@ class _OutWarehouseState extends State<OutWarehouse> {
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: buyers.buyers.map((var buyer) {
                           return new DropdownMenuItem(
                             value: buyer.id,
@@ -211,12 +205,11 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         onChanged: (newValue) {
                           // do other stuff with buyer
                           setState(() {
-                            buyer = newValue;
-                            this.buyerId = buyer;
+                            buyerId = newValue;
                           });
                           print(buyerId);
                         },
-                        value: buyer,
+                        value: buyerId,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                             filled: true,
@@ -232,6 +225,7 @@ class _OutWarehouseState extends State<OutWarehouse> {
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: crops.crops.map((var crop) {
                           return new DropdownMenuItem(
                             value: crop.id,
@@ -245,9 +239,9 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with crop
-                          setState(() => crop = newValue);
+                          setState(() => cropId = newValue);
                         },
-                        value: crop,
+                        value: cropId,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                             filled: true,
@@ -260,42 +254,8 @@ class _OutWarehouseState extends State<OutWarehouse> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(3.0),
-                      child: TextFormField(
-                        controller: quantity,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: "Quantity (MT)",
-                          hintText: "Enter quantity",
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
-                          errorStyle: TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 15.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
-                      child: TextFormField(
-                        controller: buyingPrice,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: "Buying Price",
-                          hintText: "Enter buying price",
-                          labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
-                          errorStyle: TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 15.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: processed.map((String process) {
                           return new DropdownMenuItem(
                             value: process,
@@ -343,9 +303,95 @@ class _OutWarehouseState extends State<OutWarehouse> {
                       ),
                     ) : Container(),
 
+                      Padding(
+                       padding: const EdgeInsets.all(3.0),
+                       child: DropdownButtonFormField(
+                          validator: (value) => value == null ? "This field is required" : null,
+                          items: qualities.map((String quality) {
+                            return new DropdownMenuItem(
+                              value: quality,
+                              child: Row(
+                                children: <Widget>[
+                                  // Icon(Icons.star),
+                                  Text(quality),
+                                ],
+                              )
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            // do other stuff with quality
+                            setState(() => quality = newValue);
+                          },
+                          value: quality,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                              filled: true,
+                              fillColor: Colors.grey[50],
+                              labelText: "Quality",
+                          ),
+                          isExpanded: false,
+                          // hint: Text("Select seller",),
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: TextFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
+                        controller: quantity,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: "Quantity (MT)",
+                          hintText: "Enter quantity",
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
+                          errorStyle: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 15.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
+                      child: TextFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
+                        controller: buyingPrice,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: "Buying Price",
+                          hintText: "Enter buying price",
+                          labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
+                          errorStyle: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 15.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
+                      child: TextFormField(
+                        controller: cessPayment,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: "CESS Payment (Tsh)",
+                          hintText: "Enter cess payment",
+                          filled: false,
+                          fillColor: Colors.grey[200],
+                          labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
+                          errorStyle: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 15.0,
+                          ),
+                        ),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: destinations.map((String destination) {
                           return new DropdownMenuItem(
                             value: destination,
@@ -359,6 +405,8 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with destination
+                          destMarket = obj;
+                          destWarehouse = obj;
                           setState(() => destination = newValue);
                           if (newValue == 'Warehouse') {
                             tomarket = false;
@@ -383,86 +431,11 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         // hint: Text("Select seller",),
                       ),
                     ),
-                    towarehouse ? Padding(
-                      padding: const EdgeInsets.all(3.0),
-                      child: DropdownButtonFormField(
-                        items: warehouses.warehouses.map((var warehouse) {
-                          return new DropdownMenuItem(
-                            value: warehouse.id,
-                            child: Row(
-                              children: <Widget>[
-                                // Icon(Icons.star),
-                                Text(warehouse.name),
-                              ],
-                            )
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          // do other stuff with destwarehouse
-                          setState(() => destwarehouse = newValue);
-                        },
-                        value: destwarehouse,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
-                            filled: true,
-                            fillColor: Colors.grey[200],
-                            labelText: "Destination Warehouse",
-                        ),
-                        isExpanded: false,
-                        // hint: Text("Select seller",),
-                      ),
-                    ): Container(),
-                    tomarket ? Padding(
-                      padding: const EdgeInsets.all(3.0),
-                      child: DropdownButtonFormField(
-                        items: markets.markets.map((var market) {
-                          return new DropdownMenuItem(
-                            value: market.id,
-                            child: Row(
-                              children: <Widget>[
-                                // Icon(Icons.star),
-                                Text(market.name),
-                              ],
-                            )
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          // do other stuff with destmarket
-                          setState(() => destmarket = newValue);
-                        },
-                        value: destmarket,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
-                            filled: true,
-                            fillColor: Colors.grey[50],
-                            labelText: "Destination Market",
-                        ),
-                        isExpanded: false,
-                        // hint: Text("Select seller",),
-                      ),
-                    ) : Container(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
-                      child: TextFormField(
-                        controller: cessPayment,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: "CESS Payment (Tsh)",
-                          hintText: "Enter cess payment",
-                          filled: false,
-                          fillColor: Colors.grey[200],
-                          labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
-                          errorStyle: TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 15.0,
-                          ),
-                        ),
-                      ),
-                    ),
                     
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: location.regions.map((var region) {
                           return new DropdownMenuItem(
                             value: region.regionId,
@@ -476,10 +449,17 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with region
-                          setState(() => region = newValue);
-                          location.fetchDistricts(region.toString());
+                          setState(() {
+                             regionId = newValue;
+                             districtId = obj;
+                             wardId = obj;
+                             villageId = obj;
+                             destMarket = obj;
+                             destWarehouse = obj;
+                          });
+                          location.fetchDistricts(regionId.toString());
                         },
-                        value: region,
+                        value: regionId,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                             filled: true,
@@ -495,6 +475,7 @@ class _OutWarehouseState extends State<OutWarehouse> {
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: location.districts.map((var district) {
                           return new DropdownMenuItem(
                             value: district.districtId,
@@ -508,10 +489,18 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with district
-                          setState(() => district = newValue);
-                          location.fetchWards(district.toString());
+                          setState(() {
+                            districtId = newValue;
+                            wardId = obj;
+                            villageId = obj;
+                             destMarket = obj;
+                             destWarehouse = obj;
+                          });
+                          location.fetchWards(districtId.toString());
+                          warehouses.fetchSourceWarehouses(districtId.toString());
+                          markets.fetchSourceMarkets(districtId.toString());
                         },
-                        value: district,
+                        value: districtId,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                             filled: true,
@@ -527,6 +516,7 @@ class _OutWarehouseState extends State<OutWarehouse> {
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: location.wards.map((var ward) {
                           return new DropdownMenuItem(
                             value: ward.wardId,
@@ -540,10 +530,13 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with ward
-                          setState(() => ward = newValue);
-                          location.fetchvillage(ward.toString());
+                          setState(() {
+                            wardId = newValue;
+                            villageId = obj;
+                          });
+                          location.fetchvillage(wardId.toString());
                         },
-                        value: ward,
+                        value: wardId,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                             filled: true,
@@ -559,6 +552,7 @@ class _OutWarehouseState extends State<OutWarehouse> {
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
                         items: location.villages.map((var village) {
                           return new DropdownMenuItem(
                             value: village.villageId,
@@ -572,9 +566,9 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with village
-                          setState(() => village = newValue);
+                          setState(() => villageId = newValue);
                         },
-                        value: village,
+                        value: villageId,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                             filled: true,
@@ -585,6 +579,65 @@ class _OutWarehouseState extends State<OutWarehouse> {
                         // hint: Text("Select seller",),
                       ),
                     ),
+                    towarehouse ? Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
+                        items: warehouses.sourceWarehouses.map((var warehouse) {
+                          return new DropdownMenuItem(
+                            value: warehouse.id,
+                            child: Row(
+                              children: <Widget>[
+                                // Icon(Icons.star),
+                                Text(warehouse.name),
+                              ],
+                            )
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          // do other stuff with destwarehouse
+                          setState(() => destWarehouse = newValue);
+                        },
+                        value: destWarehouse,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                            labelText: "Destination Warehouse",
+                        ),
+                        isExpanded: false,
+                        // hint: Text("Select seller",),
+                      ),
+                    ): Container(),
+                    tomarket ? Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: DropdownButtonFormField(
+                        validator: (value) => value == null ? "This field is required" : null,
+                        items: markets.sourceMarkets.map((var market) {
+                          return new DropdownMenuItem(
+                            value: market.id,
+                            child: Row(
+                              children: <Widget>[
+                                // Icon(Icons.star),
+                                Text(market.name),
+                              ],
+                            )
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          // do other stuff with destmarket
+                          setState(() => destMarket = newValue);
+                        },
+                        value: destMarket,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                            labelText: "Destination Market",
+                        ),
+                        isExpanded: false,
+                      ),
+                    ) : Container(),
 
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
@@ -629,7 +682,9 @@ class _OutWarehouseState extends State<OutWarehouse> {
                                     ),
                                 ),
                                 onPressed: () {
-                                  
+                                  if (_formState.currentState!.validate()) {
+                                    restoreDefaults();
+                                  }
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(10.0),
@@ -661,5 +716,28 @@ class _OutWarehouseState extends State<OutWarehouse> {
          ],
        ),
     );
+  }
+
+  restoreDefaults() {
+    setState(() {
+      warehouseId = obj;
+      sellerId = obj;
+      buyerId = obj;
+      cropId = obj;
+      process = obj;
+      quality = obj;
+      quantity.text = '';
+      buyingPrice.text = '';
+      cessPayment.text = '';
+      destination = obj;
+      regionId = obj;
+      districtId = obj;
+      wardId = obj;
+      villageId = obj;
+      date.text = '';
+      product.text = '';
+      destMarket = obj;
+      destWarehouse = obj;
+    });
   }
 }

@@ -31,10 +31,10 @@ class CropProvider with ChangeNotifier {
   }  
 
   
-  Future<void> fetchCrops() async {
+  Future<void> fetchCrops(String trader) async {
     this._crops = [];
     http.Response response =
-        await http.get(Uri.parse("http://stocks.multics.co.tz/public/api/crops"));
+        await http.get(Uri.parse("http://stocks.multics.co.tz/public/api/app/crops/" + trader));
 
     try {
       if (response.statusCode == 200) {

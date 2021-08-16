@@ -17,13 +17,24 @@ class AllMarkets {
 
 class AllMarketsProvider with ChangeNotifier {
   List<AllMarkets> _markets = [];
+  List<AllMarkets> _sourceMarkets = [];
 
   List<AllMarkets> get markets => [..._markets];
+  List<AllMarkets> get sourceMarkets => [..._sourceMarkets];
 
   
   void setMarkets(
       int id, String name) {
     this._markets.add(AllMarkets(
+          id: id,
+          name: name,
+        ));
+    notifyListeners();
+  } 
+  
+  void setSourceMarkets(
+      int id, String name) {
+    this._sourceMarkets.add(AllMarkets(
           id: id,
           name: name,
         ));
@@ -51,5 +62,28 @@ class AllMarketsProvider with ChangeNotifier {
       print(e.toString());
     }
     // print(markets);
+  }
+
+  
+  Future<void> fetchSourceMarkets(String district) async {
+    this._sourceMarkets = [];
+    http.Response response =
+        await http.get(Uri.parse("http://stocks.multics.co.tz/public/api/area_markets/" + district));
+
+    try {
+      if (response.statusCode == 200) {
+        for (var map in jsonDecode(response.body)) {
+          setSourceMarkets(
+            map['id'],
+            map['name']
+          );
+
+        }
+        // print(response.body);
+      }
+    } catch (e, _) {
+      print(e.toString());
+    }
+    // print(warehouses);
   }
 }

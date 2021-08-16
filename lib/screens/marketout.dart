@@ -80,6 +80,14 @@ var crops = [
     "Mwanza",
   ];
 
+  
+var qualities = [
+    "High",
+    "Moderate",
+    "Low",
+    "Unknown",
+  ];
+
   var districts = [];
   var wards = [];
   var villages = [];
@@ -96,6 +104,7 @@ var crops = [
   var district;
   var ward;
   var village;
+  var quality;
   var isProcessed = false;
   var towarehouse = false;
   var tomarket = false;
@@ -262,41 +271,6 @@ var crops = [
                       ),
                       Padding(
                         padding: const EdgeInsets.all(3.0),
-                        child: TextFormField(
-                          controller: quantity,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: "Quantity (MT)",
-                            hintText: "Enter quantity",
-                            filled: true,
-                            fillColor: Colors.grey[200],
-                            labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
-                            errorStyle: TextStyle(
-                              color: Colors.redAccent,
-                              fontSize: 15.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
-                        child: TextFormField(
-                          controller: buyingPrice,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: "Buying Price",
-                            hintText: "Enter buying price",
-                            labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
-                            errorStyle: TextStyle(
-                              color: Colors.redAccent,
-                              fontSize: 15.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(3.0),
                         child: DropdownButtonFormField(
                           items: processed.map((String process) {
                             return new DropdownMenuItem(
@@ -345,6 +319,71 @@ var crops = [
                         ),
                       ) : Container(),
 
+                      Padding(
+                       padding: const EdgeInsets.all(3.0),
+                       child: DropdownButtonFormField(
+                          validator: (value) => value == null ? "This field is required" : null,
+                          items: qualities.map((String quality) {
+                            return new DropdownMenuItem(
+                              value: quality,
+                              child: Row(
+                                children: <Widget>[
+                                  // Icon(Icons.star),
+                                  Text(quality),
+                                ],
+                              )
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            // do other stuff with quality
+                            setState(() => quality = newValue);
+                          },
+                          value: quality,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                              filled: true,
+                              fillColor: Colors.grey[50],
+                              labelText: "Quality",
+                          ),
+                          isExpanded: false,
+                          // hint: Text("Select seller",),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: TextFormField(
+                          controller: quantity,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: "Quantity (MT)",
+                            hintText: "Enter quantity",
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                            labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
+                            errorStyle: TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 15.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
+                        child: TextFormField(
+                          controller: buyingPrice,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: "Buying Price",
+                            hintText: "Enter buying price",
+                            labelStyle: TextStyle(fontSize: 15.0, color: Colors.grey[750]),
+                            errorStyle: TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 15.0,
+                            ),
+                          ),
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
                         child: TextFormField(
@@ -403,65 +442,6 @@ var crops = [
                           // hint: Text("Select seller",),
                         ),
                       ),
-                      towarehouse ? Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: DropdownButtonFormField(
-                          items: destwarehouses.map((String destwarehouse) {
-                            return new DropdownMenuItem(
-                              value: destwarehouse,
-                              child: Row(
-                                children: <Widget>[
-                                  // Icon(Icons.star),
-                                  Text(destwarehouse),
-                                ],
-                              )
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            // do other stuff with destwarehouse
-                            setState(() => destwarehouse = newValue);
-                          },
-                          value: destwarehouse,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              labelText: "Destination Warehouse",
-                          ),
-                          isExpanded: false,
-                          // hint: Text("Select seller",),
-                        ),
-                      ): Container(),
-                      tomarket ? Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: DropdownButtonFormField(
-                          items: destmarkets.map((String destmarket) {
-                            return new DropdownMenuItem(
-                              value: destmarket,
-                              child: Row(
-                                children: <Widget>[
-                                  // Icon(Icons.star),
-                                  Text(destmarket),
-                                ],
-                              )
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            // do other stuff with destmarket
-                            setState(() => destmarket = newValue);
-                          },
-                          value: destmarket,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
-                              filled: true,
-                              fillColor: Colors.grey[50],
-                              labelText: "Destination Market",
-                          ),
-                          isExpanded: false,
-                          // hint: Text("Select seller",),
-                        ),
-                      ) : Container(),
-                      
 
                       Padding(
                         padding: const EdgeInsets.all(3.0),
@@ -585,6 +565,65 @@ var crops = [
                           // hint: Text("Select seller",),
                         ),
                       ),
+                      towarehouse ? Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: DropdownButtonFormField(
+                          items: destwarehouses.map((String destwarehouse) {
+                            return new DropdownMenuItem(
+                              value: destwarehouse,
+                              child: Row(
+                                children: <Widget>[
+                                  // Icon(Icons.star),
+                                  Text(destwarehouse),
+                                ],
+                              )
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            // do other stuff with destwarehouse
+                            setState(() => destwarehouse = newValue);
+                          },
+                          value: destwarehouse,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              labelText: "Destination Warehouse",
+                          ),
+                          isExpanded: false,
+                          // hint: Text("Select seller",),
+                        ),
+                      ): Container(),
+                      tomarket ? Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: DropdownButtonFormField(
+                          items: destmarkets.map((String destmarket) {
+                            return new DropdownMenuItem(
+                              value: destmarket,
+                              child: Row(
+                                children: <Widget>[
+                                  // Icon(Icons.star),
+                                  Text(destmarket),
+                                ],
+                              )
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            // do other stuff with destmarket
+                            setState(() => destmarket = newValue);
+                          },
+                          value: destmarket,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                              filled: true,
+                              fillColor: Colors.grey[50],
+                              labelText: "Destination Market",
+                          ),
+                          isExpanded: false,
+                          // hint: Text("Select seller",),
+                        ),
+                      ) : Container(),
+                      
 
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),

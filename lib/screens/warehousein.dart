@@ -42,20 +42,16 @@ var qualities = [
   ];
 
 
-  var seller;
   var quality;
-  var crop;
   var receivingWarehouseId;
   var source;
   var sourceWarehouseId;
   var sourceMarketId;
-  var region;
-  var district;
-  var ward;
-  var village;
+  
 
   var fromWarehouse = false;
   var fromMarket = false;
+  var obj;
 
   
   var sellerId;
@@ -156,11 +152,12 @@ var qualities = [
                           onChanged: (newValue) {
                             // do other stuff with seller
                             setState(() {
-                              seller = newValue;
-                              this.sellerId = seller;
+                              sellerId = newValue;
+                              cropId = obj;
+                              crops.fetchCrops(this.sellerId.toString());
                             });
                           },
-                          value: seller,
+                          value: sellerId,
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                               filled: true,
@@ -192,11 +189,10 @@ var qualities = [
                             // do other stuff with crop
                             print(newValue);
                             setState(() {
-                              crop = newValue;
-                              this.cropId = crop;
+                              cropId = newValue;
                             });
                           },
-                          value: crop,
+                          value: cropId,
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                               filled: true,
@@ -278,7 +274,6 @@ var qualities = [
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
                         child: TextFormField(
-                          validator: (value) => value!.isEmpty ? "This field is required" : null,
                           controller: cessPayment,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
@@ -313,6 +308,8 @@ var qualities = [
                           onChanged: (newValue) {
                             // do other stuff with source
                             setState(() => source = newValue);
+                            sourceMarketId = obj;
+                            sourceWarehouseId = obj;
                             if (newValue == 'Warehouse') {
                               fromMarket = false;
                               fromWarehouse = true;
@@ -336,65 +333,6 @@ var qualities = [
                           // hint: Text("Select seller",),
                         ),
                       ),
-                      fromWarehouse ? Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: DropdownButtonFormField(
-                          items: warehouses.warehouses.map((var sourceWarehouse) {
-                            return new DropdownMenuItem(
-                              value: sourceWarehouse.id,
-                              child: Row(
-                                children: <Widget>[
-                                  // Icon(Icons.star),
-                                  Text(sourceWarehouse.name),
-                                ],
-                              )
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            // do other stuff with sourceWarehouse
-                            setState(() => sourceWarehouseId = newValue);
-                          },
-                          value: sourceWarehouseId,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              labelText: "Source Warehouse",
-                          ),
-                          isExpanded: false,
-                          // hint: Text("Select seller",),
-                        ),
-                      ): Container(),
-                      fromMarket ? Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: DropdownButtonFormField(
-                          items: markets.markets.map((var sourceMarket) {
-                            return new DropdownMenuItem(
-                              value: sourceMarket.id,
-                              child: Row(
-                                children: <Widget>[
-                                  // Icon(Icons.star),
-                                  Text(sourceMarket.name),
-                                ],
-                              )
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            // do other stuff with sourceMarket
-                            setState(() => sourceMarketId = newValue);
-                          },
-                          value: sourceMarketId,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
-                              filled: true,
-                              fillColor: Colors.grey[50],
-                              labelText: "Source Market",
-                          ),
-                          isExpanded: false,
-                          // hint: Text("Select seller",),
-                        ),
-                      ) : Container(),
-
                       
                       Padding(
                         padding: const EdgeInsets.all(3.0),
@@ -414,13 +352,17 @@ var qualities = [
                           onChanged: (newValue) {
                             // do other stuff with region
                             setState(() {
-                              region = newValue;
-                              this.regionId = region;
+                              regionId = newValue;
+                              districtId = obj;
+                              wardId = obj;
+                              villageId = obj;
+                              sourceMarketId = obj;
+                              sourceWarehouseId = obj;
                             });
+                            location.fetchDistricts(regionId.toString());
                             // print(newValue);
-                            location.fetchDistricts(region.toString());
                           },
-                          value: region,
+                          value: regionId,
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                               filled: true,
@@ -451,12 +393,17 @@ var qualities = [
                           onChanged: (newValue) {
                             // do other stuff with district
                             setState(() {
-                              district = newValue;
-                              this.districtId = district;
+                              districtId = newValue;
+                              wardId = obj;
+                              villageId = obj;
+                              sourceMarketId = obj;
+                              sourceWarehouseId = obj;
                             });
-                            location.fetchWards(district.toString());
+                            location.fetchWards(districtId.toString());
+                            warehouses.fetchSourceWarehouses(districtId.toString());
+                            markets.fetchSourceMarkets(districtId.toString());
                           },
-                          value: district,
+                          value: districtId,
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                               filled: true,
@@ -468,7 +415,6 @@ var qualities = [
                         ),
                       ),
 
-                      
                       Padding(
                         padding: const EdgeInsets.all(3.0),
                         child: DropdownButtonFormField(
@@ -487,12 +433,12 @@ var qualities = [
                           onChanged: (newValue) {
                             // do other stuff with ward
                             setState(() {
-                              ward = newValue;
-                              this.wardId = ward;
+                              wardId = newValue;
+                              villageId = obj;
                             });
-                            location.fetchvillage(ward.toString());
+                            location.fetchvillage(wardId.toString());
                           },
-                          value: ward,
+                          value: wardId,
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                               filled: true,
@@ -503,8 +449,7 @@ var qualities = [
                           // hint: Text("Select seller",),
                         ),
                       ),
-
-                      
+                       
                       Padding(
                         padding: const EdgeInsets.all(3.0),
                         child: DropdownButtonFormField(
@@ -522,11 +467,10 @@ var qualities = [
                           onChanged: (newValue) {
                             // do other stuff with village
                             setState(() {
-                              village = newValue;
-                              this.villageId = village;
+                              villageId = newValue;
                             });
                           },
-                          value: village,
+                          value: villageId,
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                               filled: true,
@@ -538,6 +482,67 @@ var qualities = [
                         ),
                       ),
 
+                      fromWarehouse ? Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: DropdownButtonFormField(
+                          items: warehouses.sourceWarehouses.map((var sourceWarehouse) {
+                            return new DropdownMenuItem(
+                              value: sourceWarehouse.id,
+                              child: Row(
+                                children: <Widget>[
+                                  // Icon(Icons.star),
+                                  Text(sourceWarehouse.name),
+                                ],
+                              )
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            // do other stuff with sourceWarehouse
+                            setState(() => sourceWarehouseId = newValue);
+                          },
+                          value: sourceWarehouseId,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              labelText: "Source Warehouse",
+                          ),
+                          isExpanded: false,
+                          // hint: Text("Select seller",),
+                        ),
+                      ): Container(),
+                      fromMarket ? Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: DropdownButtonFormField(
+                          items: markets.sourceMarkets.map((var sourceMarket) {
+                            return new DropdownMenuItem(
+                              value: sourceMarket.id,
+                              child: Row(
+                                children: <Widget>[
+                                  // Icon(Icons.star),
+                                  Text(sourceMarket.name),
+                                ],
+                              )
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            // do other stuff with sourceMarket
+                            setState(() => sourceMarketId = newValue);
+                          },
+                          value: sourceMarketId,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                              filled: true,
+                              fillColor: Colors.grey[50],
+                              labelText: "Source Market",
+                          ),
+                          isExpanded: false,
+                          // hint: Text("Select seller",),
+                        ),
+                      ) : Container(),
+
+
+                     
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
                         child: Column(
