@@ -1,6 +1,14 @@
+import 'dart:convert';
+
+import 'package:csdynamics/providers/broker.dart';
+import 'package:csdynamics/providers/crops.dart';
+import 'package:csdynamics/providers/location.dart';
+import 'package:csdynamics/providers/markets.dart';
+import 'package:csdynamics/providers/warehouses.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class InMarket extends StatefulWidget {
   InMarket({Key? key}) : super(key: key);
@@ -15,79 +23,46 @@ class _InMarketState extends State<InMarket> {
   TextEditingController cessPayment = new TextEditingController();
   TextEditingController wholesale = new TextEditingController();
   TextEditingController retail = new TextEditingController();
+  TextEditingController date = new TextEditingController();
 
   final format = DateFormat("yyyy-MM-dd");
-
-var brokers = [
-    "Kamba Mtale",
-    "Pedro Santo",
-    "Paco Peter",
-    "Kambona Elisante",
-  ];
-
-var markets = [
-    "Utegi",
-    "Ngara",
-    "Mazimbu",
-    "Kyela",
-  ];
 
   var sources = [
     "Farm",
     "Warehouse",
     "Market",
   ];
-  var waresources = [
-    "Majengo",
-    "Begi",
-    "Mtana",
-  ];
-  var marketsources = [
-    "Kitenga",
-    "Randa",
-    "Nyamaguku",
-  ];
 
-  var regions = [
-    "Mara",
-    "Dodoma",
-    "Mwanza",
-  ];
-
-var qualities = [
+  var qualities = [
     "High",
     "Moderate",
     "Low",
     "Unknown",
   ];
 
-  
-var crops = [
-    "Maize",
-    "Millet",
-    "Soghum",
-    "Rice",
-  ];
 
-  var districts = [];
-  var wards = [];
-  var villages = [];
-  var broker;
-  var market;
+  var brokerId;
+  var marketId;
   var source;
-  var sourceWarehouse;
-  var sourceMarket;
-  var region;
-  var district;
-  var ward;
-  var village;
-  var crop;
+  var sourceWarehouseId;
+  var sourceMarketId;
+  var regionId;
+  var districtId;
+  var wardId;
+  var villageId;
+  var cropId;
   var quality;
   
   var fromWarehouse = false;
   var fromMarket = false;
+  var obj;
   @override
   Widget build(BuildContext context) {
+    var brokers = Provider.of<BrokerProvider>(context);
+    var crops = Provider.of<CropProvider>(context);
+    var location = Provider.of<LocationProvider>(context);
+    var markets = Provider.of<AllMarketsProvider>(context);
+    var warehouses = Provider.of<AllWarehouseProvider>(context);
     return Scaffold(
        appBar: AppBar(
          title: Column(
@@ -126,22 +101,23 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
-                      items: markets.map((String market) {
+                      validator: (value) => value == null ? "This field is required" : null,
+                      items: markets.markets.map((var market) {
                         return new DropdownMenuItem(
-                          value: market,
+                          value: market.id,
                           child: Row(
                             children: <Widget>[
                               // Icon(Icons.star),
-                              Text(market),
+                              Text(market.name),
                             ],
                           )
                         );
                       }).toList(),
                       onChanged: (newValue) {
                         // do other stuff with market
-                        setState(() => market = newValue);
+                        setState(() => marketId = newValue);
                       },
-                      value: market,
+                      value: marketId,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                           filled: true,
@@ -154,22 +130,26 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
-                      items: brokers.map((String broker) {
+                      validator: (value) => value == null ? "This field is required" : null,
+                      items: brokers.brokers.map((var broker) {
                         return new DropdownMenuItem(
-                          value: broker,
+                          value: broker.id,
                           child: Row(
                             children: <Widget>[
-                              Icon(Icons.star),
-                              Text(broker),
+                              Text(broker.name),
                             ],
                           )
                         );
                       }).toList(),
                       onChanged: (newValue) {
                         // do other stuff with broker
-                        setState(() => broker = newValue);
+                        setState(() {
+                          brokerId = newValue;
+                          cropId = obj;
+                          crops.fetchCrops(brokerId.toString());
+                        });
                       },
-                      value: broker,
+                      value: brokerId,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                           filled: true,
@@ -184,22 +164,23 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
-                      items: crops.map((String crop) {
+                      validator: (value) => value == null ? "This field is required" : null,
+                      items: crops.crops.map((var crop) {
                         return new DropdownMenuItem(
-                          value: crop,
+                          value: crop.id,
                           child: Row(
                             children: <Widget>[
                               // Icon(Icons.star),
-                              Text(crop),
+                              Text(crop.name),
                             ],
                           )
                         );
                       }).toList(),
                       onChanged: (newValue) {
                         // do other stuff with crop
-                        setState(() => crop = newValue);
+                        setState(() => cropId = newValue);
                       },
-                      value: crop,
+                      value: cropId,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                             filled: true,
@@ -213,6 +194,7 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: TextFormField(
+                      validator: (value) => value == null ? "This field is required" : null,
                       controller: quantity,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
@@ -232,6 +214,7 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
                     child: DropdownButtonFormField(
+                      validator: (value) => value == null ? "This field is required" : null,
                       items: qualities.map((String quality) {
                         return new DropdownMenuItem(
                           value: quality,
@@ -264,6 +247,7 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
                     child: TextFormField(
+                      validator: (value) => value == null ? "This field is required" : null,
                       controller: wholesale,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
@@ -282,6 +266,7 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
                     child: TextFormField(
+                      validator: (value) => value == null ? "This field is required" : null,
                       controller: retail,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
@@ -319,6 +304,7 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
+                      validator: (value) => value == null ? "This field is required" : null,
                       items: sources.map((String source) {
                         return new DropdownMenuItem(
                           value: source,
@@ -359,22 +345,31 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
-                      items: regions.map((var region) {
+                      validator: (value) => value == null ? "This field is required" : null,
+                      items: location.regions.map((var region) {
                         return new DropdownMenuItem(
-                          value: region,
+                          value: region.regionId,
                           child: Row(
                             children: <Widget>[
                               // Icon(Icons.star),
-                              Text(region),
+                              Text(region.regionName),
                             ],
                           )
                         );
                       }).toList(),
                       onChanged: (newValue) {
                         // do other stuff with region
-                        setState(() => region = newValue);
+                        setState(() {
+                          regionId = newValue;
+                          districtId = obj;
+                          wardId = obj;
+                          villageId = obj;
+                          sourceMarketId = obj;
+                          sourceWarehouseId = obj;
+                        });
+                          location.fetchDistricts(regionId.toString());
                       },
-                      value: region,
+                      value: regionId,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                           filled: true,
@@ -390,22 +385,32 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
-                      items: districts.map((var district) {
+                      validator: (value) => value == null ? "This field is required" : null,
+                      items: location.districts.map((var district) {
                         return new DropdownMenuItem(
-                          value: district,
+                          value: district.districtId,
                           child: Row(
                             children: <Widget>[
                               // Icon(Icons.star),
-                              Text(district),
+                              Text(district.districtName),
                             ],
                           )
                         );
                       }).toList(),
                       onChanged: (newValue) {
                         // do other stuff with district
-                        setState(() => district = newValue);
+                        setState(() {
+                          districtId = newValue;
+                          wardId = obj;
+                          villageId = obj;
+                          sourceMarketId = obj;
+                          sourceWarehouseId = obj;
+                        });
+                        location.fetchWards(districtId.toString());
+                        warehouses.fetchSourceWarehouses(districtId.toString());
+                        markets.fetchSourceMarkets(districtId.toString());
                       },
-                      value: district,
+                      value: districtId,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                           filled: true,
@@ -421,22 +426,27 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
-                      items: wards.map((var ward) {
+                      validator: (value) => value == null ? "This field is required" : null,
+                      items: location.wards.map((var ward) {
                         return new DropdownMenuItem(
-                          value: ward,
+                          value: ward.wardId,
                           child: Row(
                             children: <Widget>[
                               // Icon(Icons.star),
-                              Text(ward),
+                              Text(ward.wardName),
                             ],
                           )
                         );
                       }).toList(),
                       onChanged: (newValue) {
                         // do other stuff with ward
-                        setState(() => ward = newValue);
+                        setState(() {
+                          wardId = newValue;
+                          villageId = obj;
+                        });
+                        location.fetchvillage(wardId.toString());
                       },
-                      value: ward,
+                      value: wardId,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                           filled: true,
@@ -452,22 +462,22 @@ var crops = [
                   Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
-                      items: villages.map((var village) {
+                      items: location.villages.map((var village) {
                         return new DropdownMenuItem(
-                          value: village,
+                          value: village.villageId,
                           child: Row(
                             children: <Widget>[
                               // Icon(Icons.star),
-                              Text(village),
+                              Text(village.villageName),
                             ],
                           )
                         );
                       }).toList(),
                       onChanged: (newValue) {
                         // do other stuff with village
-                        setState(() => village = newValue);
+                        setState(() => villageId = newValue);
                       },
-                      value: village,
+                      value: villageId,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                           filled: true,
@@ -481,22 +491,25 @@ var crops = [
                   fromWarehouse ? Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
-                      items: waresources.map((String sourceWarehouse) {
+                      items: warehouses.sourceWarehouses.map((var sourceWarehouse) {
                         return new DropdownMenuItem(
-                          value: sourceWarehouse,
+                          value: sourceWarehouse.id,
                           child: Row(
                             children: <Widget>[
                               // Icon(Icons.star),
-                              Text(sourceWarehouse),
+                              Text(sourceWarehouse.name),
                             ],
                           )
                         );
                       }).toList(),
                       onChanged: (newValue) {
                         // do other stuff with sourceWarehouse
-                        setState(() => sourceWarehouse = newValue);
+                        setState(() {
+                          sourceWarehouseId = newValue;
+                          sourceMarketId = obj;
+                        });
                       },
-                      value: sourceWarehouse,
+                      value: sourceWarehouseId,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                           filled: true,
@@ -510,22 +523,25 @@ var crops = [
                   fromMarket ? Padding(
                     padding: const EdgeInsets.all(3.0),
                     child: DropdownButtonFormField(
-                      items: marketsources.map((String sourceMarket) {
+                      items: markets.sourceMarkets.map((var sourceMarket) {
                         return new DropdownMenuItem(
-                          value: sourceMarket,
+                          value: sourceMarket.id,
                           child: Row(
                             children: <Widget>[
                               // Icon(Icons.star),
-                              Text(sourceMarket),
+                              Text(sourceMarket.name),
                             ],
                           )
                         );
                       }).toList(),
                       onChanged: (newValue) {
                         // do other stuff with sourceMarket
-                        setState(() => sourceMarket = newValue);
+                        setState(() { 
+                          sourceMarketId = newValue;
+                          sourceWarehouseId = obj;
+                        });
                       },
-                      value: sourceMarket,
+                      value: sourceMarketId,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                           filled: true,
@@ -543,6 +559,8 @@ var crops = [
                       children: [
                         // Text('Basic date field (${format.pattern})'),
                         DateTimeField(
+                          controller: date,
+                          validator: (value) => value == null ? "This field is required" : null,
                           format: format,
                           decoration: InputDecoration(
                             // icon: Icon(Icons.calendar_today),
@@ -577,7 +595,34 @@ var crops = [
                                   ),
                               ),
                               onPressed: () {
-                                
+                                if (_formState.currentState!.validate()) {
+                                  final data = jsonEncode({
+                                    'trader_id': brokerId,
+                                    'quality': quality,
+                                    'quantity': quantity.text,
+                                    'total_price': wholesale.text,
+                                    'retail_price': retail.text,
+                                    'crop_id': cropId,
+                                    'market_id': marketId,
+                                    'village_id': villageId,
+                                    'ward_id': wardId,
+                                    'district_id': wardId,
+                                    'region_id': regionId,
+                                    'cess_payment': cessPayment.text,
+                                    'source': source,
+                                    'origin_market': sourceMarketId,
+                                    'origin_warehouse': sourceWarehouseId,
+                                    'date': date.text
+                                  });
+                                  markets.setLoading();
+                                  markets.isLoading ?
+                                    // ignore: unnecessary_statements
+                                    showAlertDialog(context) : null;
+
+                                  markets.receiveInMarket(data, context);
+                                  // ignore: unnecessary_statements
+                                  markets.isSuccess ? restoreDefaults(markets) : null;
+                                }
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),
@@ -607,6 +652,44 @@ var crops = [
            )
          ],
        ),
+    );
+  }
+   restoreDefaults(AllMarketsProvider market) {
+    setState(() {
+      marketId = obj;
+      brokerId = obj;
+      cropId = obj;
+      quality = obj;
+      quantity.text = obj;
+      wholesale.text = obj;
+      retail.text = obj;
+      cessPayment.text = obj;
+      source = obj;
+      regionId = obj;
+      districtId = obj;
+      wardId = obj;
+      villageId = obj;
+      date.text = obj;
+      sourceMarketId = obj;
+      sourceWarehouseId = obj;
+    });
+    market.setSuccess();
+  }
+
+  
+  showAlertDialog(BuildContext context){
+    AlertDialog alert=AlertDialog(
+      content: new Row(
+          children: [
+              CircularProgressIndicator(),
+              Container(margin: EdgeInsets.only(left: 5),child:Text("Loading" )),
+          ],),
+    );
+    showDialog(barrierDismissible: false,
+      context:context,
+      builder:(BuildContext context){
+        return alert;
+      },
     );
   }
 }

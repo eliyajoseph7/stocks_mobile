@@ -1,9 +1,11 @@
 
+import 'package:csdynamics/providers/broker.dart';
 import 'package:csdynamics/providers/buyer.dart';
 import 'package:csdynamics/providers/crops.dart';
 import 'package:csdynamics/providers/location.dart';
 import 'package:csdynamics/providers/markets.dart';
 import 'package:csdynamics/providers/seller.dart';
+import 'package:csdynamics/providers/user.dart';
 import 'package:csdynamics/providers/warehouses.dart';
 import 'package:csdynamics/screens/login.dart';
 import 'package:csdynamics/widgets/market.dart';
@@ -34,6 +36,7 @@ class _HomePageState extends State<HomePage> {
       var markets = Provider.of<AllMarketsProvider>(context, listen: false);
       var warehouses = Provider.of<AllWarehouseProvider>(context, listen: false);
       var buyer = Provider.of<BuyerProvider>(context, listen: false);
+      var broker = Provider.of<BrokerProvider>(context, listen: false);
 
       seller.fetchSellers();
       // crop.fetchCrops();
@@ -41,6 +44,7 @@ class _HomePageState extends State<HomePage> {
       markets.fetchMarkets();
       warehouses.fetchWarehouses();
       buyer.fetchBuyers();
+      broker.fetchBrokers();
     });
   }
 
@@ -54,6 +58,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget build(BuildContext context) {
+    var user = Provider.of<UserProvider>(context);
     return Scaffold(
        body: NestedScrollView(
          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -89,8 +94,11 @@ class _HomePageState extends State<HomePage> {
            children: [
              Column(
                children: [
-                Warehouse(),
-                Market()
+                user.permissions.contains('receive-in-warehouse') ? 
+                  Warehouse() : Container(),
+
+                user.permissions.contains('receive-in-market') ? 
+                  Market(): Container()
                ],
              ),
            ],

@@ -1,8 +1,10 @@
 import 'dart:ui';
 
+import 'package:csdynamics/providers/user.dart';
 import 'package:csdynamics/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -35,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget build(BuildContext context) {
+    var user = Provider.of<UserProvider>(context, listen: false);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
@@ -176,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                                                           //   this._error = '';
                                                           // });
                                                           showAlertDialog(context);
-                                                          signIn(username.text, password.text);
+                                                          signIn(username.text, password.text, user);
                                                         }
                                                       });
                                                     },
@@ -310,7 +313,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  signIn(String username, String password) async{
+  signIn(String username, String password, UserProvider user) async{
     try {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
@@ -330,9 +333,10 @@ class _LoginPageState extends State<LoginPage> {
       print(response.statusCode);
       var resp = (jsonDecode(response.body));
       if (response.statusCode == 200) {
-        print(resp['api_token']);
+        // print(resp[1]);
         if (resp != null) {
-          sharedPreferences.setString("token", resp['api_token']);
+          sharedPreferences.setString("token", resp[0]['api_token']);
+          user.setPermissions(resp[1]);
           Navigator.pop(context);
           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) => HomePage()));
         } 
@@ -347,6 +351,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     catch(_, e) {
       print(e.toString());
+      Navigator.pop(context);
       final snackBar = SnackBar(
             content: Text(
                 'login failed, try checking your internet connection'

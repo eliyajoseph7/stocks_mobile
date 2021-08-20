@@ -498,7 +498,10 @@ var qualities = [
                           }).toList(),
                           onChanged: (newValue) {
                             // do other stuff with sourceWarehouse
-                            setState(() => sourceWarehouseId = newValue);
+                            setState(() {
+                              sourceWarehouseId = newValue;
+                              sourceMarketId = obj;
+                            });
                           },
                           value: sourceWarehouseId,
                           decoration: InputDecoration(
@@ -527,7 +530,10 @@ var qualities = [
                           }).toList(),
                           onChanged: (newValue) {
                             // do other stuff with sourceMarket
-                            setState(() => sourceMarketId = newValue);
+                            setState(() { 
+                              sourceMarketId = newValue;
+                              sourceWarehouseId = obj;
+                            });
                           },
                           value: sourceMarketId,
                           decoration: InputDecoration(
@@ -607,7 +613,8 @@ var qualities = [
                                       // print(data);
                                       warehouses.setLoading();
                                       warehouses.isLoading ?
-                                        showAlertDialog(context) : Navigator.pop(context);
+                                        // ignore: unnecessary_statements
+                                        showAlertDialog(context) : null;
 
                                       warehouses.receiveInWarehouses(data, context);
                                     }

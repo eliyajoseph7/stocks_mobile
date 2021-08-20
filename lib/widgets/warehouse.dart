@@ -23,23 +23,29 @@ class Warehouse extends StatelessWidget {
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(15),
                   topRight: Radius.circular(15),
-                  bottomLeft: Radius.circular(15),
-                  bottomRight: Radius.circular(15)
+                  bottomLeft: Radius.circular(5),
+                  bottomRight: Radius.circular(5)
                 )
                 ),
               child: SizedBox(
-                height: 120,
+                height: 130,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(1.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Center(
-                        child: Text(
-                          "Receive in warehouse",
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.bold
+                      Card(
+                        color: Colors.grey[200],
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              "Receive in warehouse",
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -47,7 +53,7 @@ class Warehouse extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Icon(
                           Icons.arrow_circle_down,
-                          size: 48.0,
+                          size: 58.0,
                         ),
                       )
                     ]
@@ -56,6 +62,7 @@ class Warehouse extends StatelessWidget {
               ),
               ),
             ),
+            SizedBox(height: 8,),
           GestureDetector(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -68,24 +75,30 @@ class Warehouse extends StatelessWidget {
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(15),
                   topRight: Radius.circular(15),
-                  bottomLeft: Radius.circular(15),
-                  bottomRight: Radius.circular(15)
+                  bottomLeft: Radius.circular(5),
+                  bottomRight: Radius.circular(5)
                 )
                 ),
               child: SizedBox(
                 // height: MediaQuery.of(context).size.height * 0.15,
-                height: 120,
+                height: 130,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(1.0),
                   child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Center(
-                        child: Text(
-                          "Release from warehouse",
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.bold
+                      Card(
+                        color: Colors.grey[200],
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              "Release from warehouse",
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -93,7 +106,7 @@ class Warehouse extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Icon(
                           Icons.arrow_circle_up,
-                          size: 48.0,
+                          size: 58.0,
                         ),
                       )
                     ]
@@ -102,6 +115,7 @@ class Warehouse extends StatelessWidget {
               ),
               ),
           ),
+          SizedBox(height: 8.0,)
       ],
     );
   }

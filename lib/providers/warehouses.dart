@@ -21,10 +21,12 @@ class AllWarehouseProvider with ChangeNotifier {
   List<AllWarehouse> _sourceWarehouses = [];
 
   bool loading = false;
+  bool success = false;
 
   List<AllWarehouse> get warehouses => [..._warehouses];
   List<AllWarehouse> get sourceWarehouses => [..._sourceWarehouses];
   bool get isLoading => loading;
+  bool get isSuccess => success;
 
   
   void setWarehouses(
@@ -47,6 +49,12 @@ class AllWarehouseProvider with ChangeNotifier {
 
   void setLoading() {
     this.loading = !this.loading;
+    notifyListeners();
+  }
+
+  void setSuccess() {
+    this.success = !this.success;
+    notifyListeners();
   }
   
   Future<void> fetchWarehouses() async {
@@ -128,6 +136,63 @@ class AllWarehouseProvider with ChangeNotifier {
     }
     catch(e) {
       print(e.toString());
+      Navigator.pop(context);
+      final snackBar = SnackBar(
+        content: Text(
+            'something went wrong'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
+
+  void releaseFromWarehouses(data, context) async {
+    try {
+      var response = await http.post(
+          Uri.parse("http://stocks.multics.co.tz/public/api/app/release_from_warehouse"),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+            'accept': 'application/json'
+          },
+          body: data);
+
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        setLoading();
+        Navigator.pop(context);
+        if (jsonDecode(response.body)['resp'] != 'failed') {
+          if (jsonDecode(response.body)['resp'] != 'nothing') {
+            setSuccess();
+            final snackBar = SnackBar(
+                content: Text(
+                    'Commodity released successfully'),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          } else {
+            final snackBar = SnackBar(
+                content: Text(
+                    'Nothing is in the warehouse for release'),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        }else {
+          setLoading();
+          final snackBar = SnackBar(
+              content: Text(
+                  'Quantity exceeded the available amount'),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      } 
+    }
+    catch(e) {
+      print(e.toString());
+      Navigator.pop(context);
+      final snackBar = SnackBar(
+        content: Text(
+            'something went wrong'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
 }

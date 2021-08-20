@@ -1,8 +1,10 @@
+import 'package:csdynamics/providers/broker.dart';
 import 'package:csdynamics/providers/buyer.dart';
 import 'package:csdynamics/providers/crops.dart';
 import 'package:csdynamics/providers/location.dart';
 import 'package:csdynamics/providers/markets.dart';
 import 'package:csdynamics/providers/seller.dart';
+import 'package:csdynamics/providers/user.dart';
 import 'package:csdynamics/providers/warehouses.dart';
 import 'package:csdynamics/routes.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +26,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: AllMarketsProvider()),
         ChangeNotifierProvider.value(value: AllWarehouseProvider()),
         ChangeNotifierProvider.value(value: BuyerProvider()),
+        ChangeNotifierProvider.value(value: BrokerProvider()),
+        ChangeNotifierProvider.value(value: UserProvider()),
       ],
       child: MaterialApp(
         title: 'CSDAYNAMICS',

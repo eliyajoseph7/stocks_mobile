@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:csdynamics/providers/buyer.dart';
 import 'package:csdynamics/providers/crops.dart';
 import 'package:csdynamics/providers/location.dart';
@@ -274,6 +276,7 @@ var qualities = [
                             isProcessed = true;
                           } else {
                             isProcessed = false;
+                            product.text = '';
                           }
                         },
                         value: process,
@@ -552,7 +555,6 @@ var qualities = [
                     Padding(
                       padding: const EdgeInsets.all(3.0),
                       child: DropdownButtonFormField(
-                        validator: (value) => value == null ? "This field is required" : null,
                         items: location.villages.map((var village) {
                           return new DropdownMenuItem(
                             value: village.villageId,
@@ -596,7 +598,10 @@ var qualities = [
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with destwarehouse
-                          setState(() => destWarehouse = newValue);
+                          setState(() {
+                            destWarehouse = newValue;
+                            destMarket = obj;
+                          });
                         },
                         value: destWarehouse,
                         decoration: InputDecoration(
@@ -626,7 +631,10 @@ var qualities = [
                         }).toList(),
                         onChanged: (newValue) {
                           // do other stuff with destmarket
-                          setState(() => destMarket = newValue);
+                          setState(() {
+                            destMarket = newValue;
+                            destWarehouse = obj;
+                          });
                         },
                         value: destMarket,
                         decoration: InputDecoration(
@@ -683,7 +691,34 @@ var qualities = [
                                 ),
                                 onPressed: () {
                                   if (_formState.currentState!.validate()) {
-                                    restoreDefaults();
+                                    final data = jsonEncode({
+                                        'trader_id': buyerId,
+                                        'sellerId': sellerId,
+                                        'quality': quality,
+                                        'quantity': quantity.text,
+                                        'buying_price': buyingPrice.text,
+                                        'crop_id': cropId,
+                                        'processed': process,
+                                        'after_processed': product.text,
+                                        'warehouse_id': warehouseId,
+                                        'village_id': villageId,
+                                        'ward_id': wardId,
+                                        'district_id': wardId,
+                                        'region_id': regionId,
+                                        'cess_payment': cessPayment.text,
+                                        'destination': destination,
+                                        'destMarketId': destMarket,
+                                        'destWarehouseId': destWarehouse,
+                                        'date': date.text
+                                      });
+
+                                    warehouses.setLoading();
+                                    warehouses.isLoading ?
+                                      // ignore: unnecessary_statements
+                                      showAlertDialog(context) : null;
+                                    warehouses.releaseFromWarehouses(data, context);
+                                    // ignore: unnecessary_statements
+                                    warehouses.isSuccess ? restoreDefaults() : null;
                                   }
                                 },
                                 child: Padding(
@@ -718,7 +753,24 @@ var qualities = [
     );
   }
 
+  showAlertDialog(BuildContext context){
+    AlertDialog alert=AlertDialog(
+      content: new Row(
+          children: [
+              CircularProgressIndicator(),
+              Container(margin: EdgeInsets.only(left: 5),child:Text("Loading" )),
+          ],),
+    );
+    showDialog(barrierDismissible: false,
+      context:context,
+      builder:(BuildContext context){
+        return alert;
+      },
+    );
+  }
+
   restoreDefaults() {
+    var warehouses = Provider.of<AllWarehouseProvider>(context);
     setState(() {
       warehouseId = obj;
       sellerId = obj;
@@ -738,6 +790,8 @@ var qualities = [
       product.text = '';
       destMarket = obj;
       destWarehouse = obj;
+      warehouses.setSuccess();
     });
+
   }
 }
