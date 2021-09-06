@@ -1,7 +1,6 @@
 
 import 'package:csdynamics/providers/broker.dart';
 import 'package:csdynamics/providers/buyer.dart';
-import 'package:csdynamics/providers/crops.dart';
 import 'package:csdynamics/providers/location.dart';
 import 'package:csdynamics/providers/markets.dart';
 import 'package:csdynamics/providers/seller.dart';
@@ -31,7 +30,6 @@ class _HomePageState extends State<HomePage> {
     
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       var seller = Provider.of<SellerProvider>(context, listen: false);
-      var crop = Provider.of<CropProvider>(context, listen: false);
       var location = Provider.of<LocationProvider>(context, listen: false);
       var markets = Provider.of<AllMarketsProvider>(context, listen: false);
       var warehouses = Provider.of<AllWarehouseProvider>(context, listen: false);

@@ -63,11 +63,20 @@ class _InMarketState extends State<InMarket> {
     var location = Provider.of<LocationProvider>(context);
     var markets = Provider.of<AllMarketsProvider>(context);
     var warehouses = Provider.of<AllWarehouseProvider>(context);
+
+    DateTime now = new DateTime.now();
+    String formattedDate = format.format(now);
+    date.text = formattedDate;
     return Scaffold(
        appBar: AppBar(
+         toolbarHeight: 80,
          title: Column(
            children: [
-             Text("Receive commodities"),
+             Text("Crop Stock Dynamics"),
+             Text("Receive commodities", 
+             style: TextStyle(
+               fontSize: 17.0
+             ),),
              Text('in secondary market', 
               style: TextStyle(
                 fontWeight: FontWeight.w100,
@@ -562,6 +571,7 @@ class _InMarketState extends State<InMarket> {
                           controller: date,
                           validator: (value) => value == null ? "This field is required" : null,
                           format: format,
+                          initialValue: DateTime.now(),
                           decoration: InputDecoration(
                             // icon: Icon(Icons.calendar_today),
                             labelText: 'Date',
@@ -621,7 +631,7 @@ class _InMarketState extends State<InMarket> {
 
                                   markets.receiveInMarket(data, context);
                                   // ignore: unnecessary_statements
-                                  markets.isSuccess ? restoreDefaults(markets) : null;
+                                  markets.getMyMarketStock();
                                 }
                               },
                               child: Padding(
@@ -673,7 +683,7 @@ class _InMarketState extends State<InMarket> {
       sourceMarketId = obj;
       sourceWarehouseId = obj;
     });
-    market.setSuccess();
+    // market.setSuccess();
   }
 
   

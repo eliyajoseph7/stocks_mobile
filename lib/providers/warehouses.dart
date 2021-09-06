@@ -1,3 +1,4 @@
+import 'package:csdynamics/screens/stock_warehouse.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -16,15 +17,71 @@ class AllWarehouse {
 
 }
 
+class StockWarehouse {
+  String date;
+  String seller;
+  String crop;
+  int quantity;
+  String quality;
+  double buyingPrice;
+  String srcRegion;
+
+  StockWarehouse({required this.date, required this.seller, required this.crop, 
+  required this.quality, required this.quantity, required this.srcRegion, required this.buyingPrice});
+
+  Map toJson() => {
+        'date': date,
+        'seller': seller,
+        'crop': crop,
+        'quantity': quantity,
+        'quality': quality,
+        'buyingPrice': buyingPrice,
+        'srcRegion': srcRegion,
+      };
+
+}
+
+class ReleasedStockWarehouse {
+  String date;
+  String buyer;
+  String crop;
+  int quantity;
+  String quality;
+  double buyingPrice;
+  String destRegion;
+
+  ReleasedStockWarehouse({required this.date, required this.buyer, required this.crop, 
+  required this.quality, required this.quantity, required this.destRegion, required this.buyingPrice});
+
+  Map toJson() => {
+        'date': date,
+        'buyer': buyer,
+        'crop': crop,
+        'quantity': quantity,
+        'quality': quality,
+        'buyingPrice': buyingPrice,
+        'destRegion': destRegion,
+      };
+
+}
+
 class AllWarehouseProvider with ChangeNotifier {
   List<AllWarehouse> _warehouses = [];
   List<AllWarehouse> _sourceWarehouses = [];
+
+  
+  List<StockWarehouse> _myStock = [];
+
+  List<ReleasedStockWarehouse> _myReleasedStock = [];
 
   bool loading = false;
   bool success = false;
 
   List<AllWarehouse> get warehouses => [..._warehouses];
   List<AllWarehouse> get sourceWarehouses => [..._sourceWarehouses];
+  List<StockWarehouse> get myStock => [..._myStock];
+
+  List<ReleasedStockWarehouse> get myReleasedStock => [..._myReleasedStock];
   bool get isLoading => loading;
   bool get isSuccess => success;
 
@@ -47,13 +104,52 @@ class AllWarehouseProvider with ChangeNotifier {
     notifyListeners();
   }  
 
+  void setMyWarehouseStock(
+      String date,
+      String seller,
+      String crop,
+      int quantity,
+      String quality,
+      double buyingPrice,
+      String srcRegion) {
+    this._myStock.add(StockWarehouse(
+      date: date, 
+      seller: seller, 
+      crop: crop, 
+      quality: quality, 
+      quantity: quantity, buyingPrice: buyingPrice, srcRegion: srcRegion
+          
+        ));
+    notifyListeners();
+  }  
+
+  
+  void setMyReleasedWarehouseStock(
+      String date,
+      String buyer,
+      String crop,
+      int quantity,
+      String quality,
+      double buyingPrice,
+      String destRegion) {
+    this._myReleasedStock.add(ReleasedStockWarehouse(
+      date: date, 
+      buyer: buyer, 
+      crop: crop, 
+      quality: quality, 
+      quantity: quantity, buyingPrice: buyingPrice, destRegion: destRegion
+          
+        ));
+    notifyListeners();
+  }  
+
   void setLoading() {
     this.loading = !this.loading;
     notifyListeners();
   }
 
-  void setSuccess() {
-    this.success = !this.success;
+  void setSuccess(bool value) {
+    this.success = value;
     notifyListeners();
   }
   
@@ -119,13 +215,15 @@ class AllWarehouseProvider with ChangeNotifier {
         setLoading();
         Navigator.pop(context);
         if (jsonDecode(response.body)['resp'] != 'failed') {
+          setSuccess(false);
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context)=> AvailableStock()));
           final snackBar = SnackBar(
               content: Text(
                   'Commodity received successfully'),
             );
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }else {
-          setLoading();
+          setLoading(); 
           final snackBar = SnackBar(
               content: Text(
                   'Quantity exceeded the warehouse capacity'),
@@ -161,7 +259,8 @@ class AllWarehouseProvider with ChangeNotifier {
         Navigator.pop(context);
         if (jsonDecode(response.body)['resp'] != 'failed') {
           if (jsonDecode(response.body)['resp'] != 'nothing') {
-            setSuccess();
+            setSuccess(false);
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context)=> AvailableStock()));
             final snackBar = SnackBar(
                 content: Text(
                     'Commodity released successfully'),
@@ -193,6 +292,48 @@ class AllWarehouseProvider with ChangeNotifier {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
+  }
+
+  Future<void> getWarehouseStock() async {
+    SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+    this._myStock = [];
+    this._myReleasedStock = [];
+    var token = sharedPreferences.getString('token');
+    http.Response response =
+        await http.get(Uri.parse("http://stocks.multics.co.tz/public/api/app/stock_warehouses/" + token.toString()));
+
+    try {
+      if (response.statusCode == 200) {
+        for (var map in jsonDecode(response.body)[0]) {
+          setMyWarehouseStock(
+            map['date1'],
+            map['seller'],
+            map['crop'],
+            map['quantity'],
+            map['quality'],
+            map['buying_price'].toDouble(),
+            map['region']
+          );
+        }    
+        for (var map in jsonDecode(response.body)[1]) {
+          setMyReleasedWarehouseStock(
+            map['date1'],
+            map['buyer'],
+            map['crop'],
+            map['quantity'],
+            map['quality'],
+            map['buying_price'].toDouble(),
+            map['region']
+          );
+        }
+          setSuccess(false);
+        // print(response.body);
+      }
+    } catch (e, _) {
+      print(e.toString());
+    }
+    // print(Warehouses);
   }
 
 }

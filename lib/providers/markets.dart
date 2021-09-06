@@ -1,3 +1,4 @@
+import 'package:csdynamics/screens/stock_market.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -15,10 +16,60 @@ class AllMarkets {
       };
 
 }
+class StockMarket {
+  String date;
+  String broker;
+  String crop;
+  int quantity;
+  String quality;
+  double wholesale;
+  double retail;
+
+  StockMarket({required this.date, required this.broker, required this.crop, 
+  required this.quality, required this.quantity, required this.retail, required this.wholesale});
+
+  Map toJson() => {
+        'date': date,
+        'broker': broker,
+        'crop': crop,
+        'quantity': quantity,
+        'quality': quality,
+        'wholesale': wholesale,
+        'retail': retail,
+      };
+
+}
+
+class ReleasedStockMarket {
+  String date;
+  String buyer;
+  String crop;
+  int quantity;
+  String quality;
+  double buyingPrice;
+  String destRegion;
+
+  ReleasedStockMarket({required this.date, required this.buyer, required this.crop, 
+  required this.quality, required this.quantity, required this.destRegion, required this.buyingPrice});
+
+  Map toJson() => {
+        'date': date,
+        'buyer': buyer,
+        'crop': crop,
+        'quantity': quantity,
+        'quality': quality,
+        'buyingPrice': buyingPrice,
+        'destRegion': destRegion,
+      };
+
+}
 
 class AllMarketsProvider with ChangeNotifier {
   List<AllMarkets> _markets = [];
   List<AllMarkets> _sourceMarkets = [];
+  List<StockMarket> _myStock = [];
+
+  List<ReleasedStockMarket> _myReleasedStock = [];
 
 
   bool loading = false;
@@ -26,6 +77,9 @@ class AllMarketsProvider with ChangeNotifier {
   
   List<AllMarkets> get markets => [..._markets];
   List<AllMarkets> get sourceMarkets => [..._sourceMarkets];
+  List<StockMarket> get myStock => [..._myStock];
+
+  List<ReleasedStockMarket> get myReleasedStock => [..._myReleasedStock];
   bool get isLoading => loading;
   bool get isSuccess => success;
 
@@ -47,6 +101,44 @@ class AllMarketsProvider with ChangeNotifier {
         ));
     notifyListeners();
   }  
+  void setMyMarketStock(
+      String date,
+      String broker,
+      String crop,
+      int quantity,
+      String quality,
+      double wholesale,
+      double retail) {
+    this._myStock.add(StockMarket(
+      date: date, 
+      broker: broker, 
+      crop: crop, 
+      quality: quality, 
+      quantity: quantity, wholesale: wholesale, retail: retail
+          
+        ));
+    notifyListeners();
+  }  
+
+  
+  void setMyReleasedMarketStock(
+      String date,
+      String buyer,
+      String crop,
+      int quantity,
+      String quality,
+      double buyingPrice,
+      String destRegion) {
+    this._myReleasedStock.add(ReleasedStockMarket(
+      date: date, 
+      buyer: buyer, 
+      crop: crop, 
+      quality: quality, 
+      quantity: quantity, buyingPrice: buyingPrice, destRegion: destRegion
+          
+        ));
+    notifyListeners();
+  }  
 
 
   void setLoading() {
@@ -54,8 +146,8 @@ class AllMarketsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setSuccess() {
-    this.success = !this.success;
+  void setSuccess(bool value) {
+    this.success = value;
     notifyListeners();
   }
   
@@ -121,8 +213,9 @@ class AllMarketsProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         setLoading();
         Navigator.pop(context);
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context)=> AvailableStock()));
         if (jsonDecode(response.body)['resp'] != 'failed') {
-          setSuccess();
+          setSuccess(false);
           final snackBar = SnackBar(
               content: Text(
                   'Commodity received successfully'),
@@ -142,7 +235,7 @@ class AllMarketsProvider with ChangeNotifier {
     }
   }
 
-   void releaseFromMarket(data, context) async {
+  void releaseFromMarket(data, context) async {
     try {
       var response = await http.post(
           Uri.parse("http://stocks.multics.co.tz/public/api/app/release_from_market"),
@@ -158,7 +251,8 @@ class AllMarketsProvider with ChangeNotifier {
         Navigator.pop(context);
         if (jsonDecode(response.body)['resp'] != 'failed') {
           if (jsonDecode(response.body)['resp'] != 'nothing') {
-            setSuccess();
+            setSuccess(false);
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context)=> AvailableStock()));
             final snackBar = SnackBar(
                 content: Text(
                     'Commodity released successfully'),
@@ -190,6 +284,49 @@ class AllMarketsProvider with ChangeNotifier {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
+  }
+
+ 
+  Future<void> getMyMarketStock() async {
+    SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+    this._myStock = [];
+    this._myReleasedStock = [];
+    var token = sharedPreferences.getString('token');
+    http.Response response =
+        await http.get(Uri.parse("http://stocks.multics.co.tz/public/api/app/stock_markets/" + token.toString()));
+
+    try {
+      if (response.statusCode == 200) {
+        for (var map in jsonDecode(response.body)[0]) {
+          setMyMarketStock(
+            map['date1'],
+            map['broker'],
+            map['crop'],
+            map['quantity'],
+            map['quality'],
+            map['total_price'].toDouble(),
+            map['retail_price'].toDouble()
+          );
+        }    
+        for (var map in jsonDecode(response.body)[1]) {
+          setMyReleasedMarketStock(
+            map['date1'],
+            map['buyer'],
+            map['crop'],
+            map['quantity'],
+            map['quality'],
+            map['buying_price'].toDouble(),
+            map['region']
+          );
+          setSuccess(false);
+        }
+        // print(response.body);
+      }
+    } catch (e, _) {
+      print(e.toString());
+    }
+    // print(markets);
   }
 
 }

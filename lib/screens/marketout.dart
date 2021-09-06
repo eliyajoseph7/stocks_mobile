@@ -74,11 +74,21 @@ class _OutMarketState extends State<OutMarket> {
     var location = Provider.of<LocationProvider>(context);
     var markets = Provider.of<AllMarketsProvider>(context);
     var warehouses = Provider.of<AllWarehouseProvider>(context);
+
+    
+    DateTime now = new DateTime.now();
+    String formattedDate = format.format(now);
+    date.text = formattedDate;
     return Scaffold(
        appBar: AppBar(
+         toolbarHeight: 80,
          title: Column(
            children: [
-             Text("Release commodities"),
+             Text("Crop Stock Dynamics"),
+             Text("Release commodities", 
+             style: TextStyle(
+               fontSize: 17.0
+             ),),
              Text('from primary market', 
               style: TextStyle(
                 fontWeight: FontWeight.w100,
@@ -641,6 +651,7 @@ class _OutMarketState extends State<OutMarket> {
                               validator: (value) => value == null ? "This field is required" : null,
                               format: format,
                               controller: date,
+                              initialValue: DateTime.now(),
                               decoration: InputDecoration(
                                 // icon: Icon(Icons.calendar_today),
                                 labelText: 'Date',

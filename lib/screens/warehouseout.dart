@@ -83,11 +83,20 @@ var qualities = [
     var markets = Provider.of<AllMarketsProvider>(context);
     var warehouses = Provider.of<AllWarehouseProvider>(context);
     var buyers = Provider.of<BuyerProvider>(context);
+    
+    DateTime now = new DateTime.now();
+    String formattedDate = format.format(now);
+    date.text = formattedDate;
     return Scaffold(
        appBar: AppBar(
+         toolbarHeight: 80,
          title: Column(
            children: [
-             Text("Release commodities"),
+             Text("Crop Stock Dynamics"),
+             Text("Release commodities", 
+             style: TextStyle(
+               fontSize: 17.0
+             ),),
              Text('from warehouse', 
               style: TextStyle(
                 fontWeight: FontWeight.w100,
@@ -655,6 +664,7 @@ var qualities = [
                           DateTimeField(
                             format: format,
                             controller: date,
+                            initialValue: DateTime.now(),
                             decoration: InputDecoration(
                               // icon: Icon(Icons.calendar_today),
                               labelText: 'Date',
@@ -770,7 +780,7 @@ var qualities = [
   }
 
   restoreDefaults() {
-    var warehouses = Provider.of<AllWarehouseProvider>(context);
+    // var warehouses = Provider.of<AllWarehouseProvider>(context);
     setState(() {
       warehouseId = obj;
       sellerId = obj;
@@ -790,7 +800,7 @@ var qualities = [
       product.text = '';
       destMarket = obj;
       destWarehouse = obj;
-      warehouses.setSuccess();
+      // warehouses.setSuccess();
     });
 
   }
