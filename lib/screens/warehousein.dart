@@ -611,7 +611,7 @@ var qualities = [
                                         'warehouse_id': this.receivingWarehouseId,
                                         'village_id': this.villageId,
                                         'ward_id': this.wardId,
-                                        'district_id': this.wardId,
+                                        'district_id': this.districtId,
                                         'region_id': this.regionId,
                                         'cess_payment': cessPayment.text,
                                         'source': this.source,

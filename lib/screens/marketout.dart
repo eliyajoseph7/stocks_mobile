@@ -700,7 +700,7 @@ class _OutMarketState extends State<OutMarket> {
                                         'market_id': marketId,
                                         'village_id': villageId,
                                         'ward_id': wardId,
-                                        'district_id': wardId,
+                                        'district_id': districtId,
                                         'region_id': regionId,
                                         'cess_payment': cessPayment.text,
                                         'destination': destination,

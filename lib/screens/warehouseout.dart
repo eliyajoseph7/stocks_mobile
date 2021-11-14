@@ -713,7 +713,7 @@ var qualities = [
                                         'warehouse_id': warehouseId,
                                         'village_id': villageId,
                                         'ward_id': wardId,
-                                        'district_id': wardId,
+                                        'district_id': districtId,
                                         'region_id': regionId,
                                         'cess_payment': cessPayment.text,
                                         'destination': destination,
