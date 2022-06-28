@@ -41,7 +41,7 @@ class StockWarehouse {
 
 }
 
-class ReleasedStockWarehouse {
+class ReleasedStockWarehouse { 
   String date;
   String buyer;
   String crop;

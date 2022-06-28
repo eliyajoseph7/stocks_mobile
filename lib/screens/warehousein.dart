@@ -19,7 +19,7 @@ class InWarehouse extends StatefulWidget {
 }
 
 class _InWarehouseState extends State<InWarehouse> {
-
+  Timer _timer;
   final format = DateFormat("yyyy-MM-dd");
 
   TextEditingController buyingPrice = new TextEditingController();
@@ -27,6 +27,51 @@ class _InWarehouseState extends State<InWarehouse> {
   TextEditingController cessPayment = new TextEditingController();
   TextEditingController date = new TextEditingController();
   var _formState = GlobalKey<FormState>();
+
+  List list;
+  bool loading = true;
+  Future warehouseinList()async{
+    list = await Controller().fetchData();
+    setState(() {loading=false;});
+    //print(list);
+  }
+
+  Future syncToMysql()async{
+      await SyncronizationData().fetchAllInfo().then((warehouseinList)async{
+        EasyLoading.show(status: 'Dont close app. we are sync...');
+        await SyncronizationData().saveToMysqlWith(warehouseinList);
+        EasyLoading.showSuccess('Successfully save to mysql');
+      });
+  }
+
+  Future isInteret()async{
+    await SyncronizationData.isInternet().then((connection){
+      if (connection) {
+        
+        print("Internet connection availale");
+      }else{
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("No Internet")));
+         Text("No Internet");
+      }
+    });
+  }
+
+  
+
+  @override
+  void initState() {
+    super.initState();
+    warehouseinList();
+    isInteret();
+    EasyLoading.addStatusCallback((status) {
+      print('EasyLoading Status $status');
+      if (status == EasyLoadingStatus.dismiss) {
+        _timer?.cancel();
+      }
+    });
+    
+
+  }
 
 var qualities = [
     "High",
@@ -89,6 +134,19 @@ var qualities = [
             )
            ],
          ),
+         actions: [
+          IconButton(icon: Icon(Icons.refresh_sharp), onPressed: ()async{
+            await SyncronizationData.isInternet().then((connection){
+              if (connection) {
+                syncToMysql();
+                print("Internet connection availale");
+              }else{
+                // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("No Internet")));
+                Text("No Internet");
+              }
+            });
+          })
+        ],
        ),
        body: ListView(
          children: [
@@ -619,6 +677,18 @@ var qualities = [
                                         'origin_warehouse': this.sourceWarehouseId,
                                         'date': date.text
                                       });
+                                      () async{
+                                        ReceiveinModel receiveinModel = ReceiveinModel(id: null,userId: 1,name: name.text,email: email.text,gender: gender.text,createdAt: DateTime.now().toString());
+                                        await Controller().addData(receiveinModel).then((value){
+                                          if (value>0) {
+                                            print("Success");
+                                            userList();
+                                          }else{
+                                            print("faild");
+                                          }
+                                          
+                                        });
+                                      },
 
                                       // print(data);
                                       warehouses.setLoading();
